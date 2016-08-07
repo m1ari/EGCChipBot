@@ -3,15 +3,9 @@
 require 'yaml'
 require 'facets/hash/deep_rekey'
 
-#require_relative 'deep_symbolize'
-
-#class Hash
-  #include DeepSymbolizable
-#end
-
 module Settings
 
-  # again - it's a singleton, thus implemented as a self-extended module
+  # it's a singleton, thus implemented as a self-extended module
   extend self
 
   @_settings = {}
@@ -22,10 +16,7 @@ module Settings
   # options, but at the moment it's being used to allow per-environment
   # overrides in Rails
   def load!(filename, options = {})
-    #newsets = YAML::load_file(filename).deep_symbolize
     newsets = YAML::load_file(filename).deep_rekey
-    #newsets.extend DeepSymbolizable
-    #newsets.deep_symbolize
     newsets = newsets[options[:env].to_sym] if \
                                                options[:env] && \
                                                newsets[options[:env].to_sym]
