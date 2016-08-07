@@ -1,31 +1,28 @@
 #!/usr/bin/env ruby
-require 'cinch'
+require 'bundler/setup'
 
 require_relative 'lib/exchanges'
 require_relative 'lib/evergreencoin'
-#require_relative 'lib/settings'
+require_relative 'lib/settings'
 
 # Load settings from EGCChipBot.yaml
 Settings.load! "EGCChipBot.yaml"
 
-#pp Settings.irc
-
-use_ssl = true
-
 bot = Cinch::Bot.new do
   configure do |c|
-    c.server = 'chat.freenode.net'
+    c.server = Settings.irc[:host]
 
-    if use_ssl
+    if Settings.irc[:use_ssl]
       c.ssl.use = true
-      c.port = 7070
+      c.port = Settings.irc[:ssl_port]
     else
-      c.port = 8000
+      c.port = Settings.irc[:port]
     end
 
-    c.channels = ["#ukhasnet-test"]
-    c.nick = "EGCChip"
-    c.realname = "EGC C.H.I.P bot"
+    c.channels = Settings.irc[:channels]
+    c.nick = Settings.irc[:nick]
+    c.user = Settings.irc[:user]
+    c.realname = Settings.irc[:name]
     c.plugins.plugins = [EGC]
   end
 

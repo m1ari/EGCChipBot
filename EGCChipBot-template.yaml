@@ -1,0 +1,17 @@
+# Template settings file for the Bot, Copy to EGCChipBot.yaml and adjust
+
+irc:
+  host: chat.freenode.net
+  # You can stick multiple channels in here in the form
+  #   [ "#Channel1", "#Channel2" ]
+  channels: [ "#EverGreenCoin" ]
+  nick: EGCChipTest
+  name: EGC C.H.I.P bot Testing
+  user: EGCChipTest
+
+  # On Freenode this should be one of 6665-6667,8000-8002. With 6667 being default
+  port: 8000
+
+  # For Freenode use one of 6697, 7000, 7070. Default is 6697
+  use_ssl: true
+  ssl_port: 7070
