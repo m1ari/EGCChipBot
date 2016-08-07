@@ -1,5 +1,6 @@
 # Template settings file for the Bot, Copy to EGCChipBot.yaml and adjust
 
+# The IRC section defines how to talk to the IRC server
 irc:
   host: chat.freenode.net
   # You can stick multiple channels in here in the form
@@ -15,3 +16,11 @@ irc:
   # For Freenode use one of 6697, 7000, 7070. Default is 6697
   use_ssl: true
   ssl_port: 7070
+
+# The Wallet section tells us how to talk to the local wallet
+# The user and password settings will need to match your evergreencoin.conf file
+wallet:
+  user: rpcuser
+  password: rpcpass
+  host: localhost
+  port: 5758

@@ -26,12 +26,7 @@ bot = Cinch::Bot.new do
     c.plugins.plugins = [EGC]
   end
 
-  on :message, "hello" do |m|
-    m.reply "Hello, #{m.user.nick}"
-  end
 end
 
 Thread.new { PollExchanges.new(bot).start }
 bot.start
-
-# vim: tabstop=2 shiftwidth=2 expandtab
