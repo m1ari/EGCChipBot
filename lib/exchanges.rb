@@ -11,8 +11,8 @@ class PollExchanges
   def start
     sleep 60 # Give the bot a chance to startup, allowing us to print the exchange state on startup
     while true
-      # Show the state on startup or if the time is between 00:15 utc and 0045 utc
-      if @startup or ( Time.now.utc.hour==11 and Time.now.min >= 15 and Time.now.min < 45)
+      # Show the state on startup or if the time is between 00:15 utc and 00:45 utc
+      if @startup or ( Time.now.utc.hour==00 and Time.now.min >= 15 and Time.now.min < 45)
         @startup=false
         exchange = Array.new
         # Bittrex (https://bittrex.com/api/v1.1/public/getticker?market=btc-egc)

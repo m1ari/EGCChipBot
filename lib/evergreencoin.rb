@@ -35,7 +35,10 @@ class EGC
     result.each do |r|
       out.push "%s %0.8f" %[r[:name], r[:last]]
     end
-    Channel("#ukhasnet-test").send out.join(" | ")
+    Settings.irc[:channels].each do |chan|
+      puts "Sending to #{chan}"
+      Channel(chan).send out.join(" | ")
+    end
   end
 
   #timer 10, method: :bing
