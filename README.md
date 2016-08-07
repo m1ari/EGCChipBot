@@ -6,11 +6,11 @@ transactions on a C.H.I.P. based wallet to test the platforms usefulness
 
 ## Current features
 * Regular update of status on the exchanges
+* Lookup current block height and block hashes
 
 ## Planned features
 * Logging of IRC messages
 * IRC based faucet
-* Lookup current block height and block hashes
 
 ## Installation
 sudo apt-get install ruby2.1
