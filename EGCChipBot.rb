@@ -23,10 +23,9 @@ bot = Cinch::Bot.new do
     c.nick = Settings.irc[:nick]
     c.user = Settings.irc[:user]
     c.realname = Settings.irc[:name]
-    c.plugins.plugins = [EGC]
+    c.plugins.plugins = [EGC, Exchanges]
   end
 
 end
 
-Thread.new { PollExchanges.new(bot).start }
 bot.start

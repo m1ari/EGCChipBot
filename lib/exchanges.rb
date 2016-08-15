@@ -1,42 +1,86 @@
 #!/usr/bin/env ruby
+require 'cinch'
 require 'json'
 require 'open-uri'
 
-class PollExchanges
-  def initialize(bot)
-    @bot = bot
-    @startup=true
+class Exchanges
+  include Cinch::Plugin
+
+  def initialize(*args)
+    super
+    @exchanges_last = poll_all
   end
 
-  def start
-    sleep 60 # Give the bot a chance to startup, allowing us to print the exchange state on startup
-    while true
-      # Show the state on startup or if the time is between 00:15 utc and 00:45 utc
-      if @startup or ( Time.now.utc.hour==00 and Time.now.min >= 15 and Time.now.min < 45)
-        @startup=false
-        exchange = Array.new
-        # Bittrex (https://bittrex.com/api/v1.1/public/getticker?market=btc-egc)
-        bittrex = JSON.parse(open("https://bittrex.com/api/v1.1/public/getticker?market=btc-egc").read)
-        exchange << {:name => "Bittrex", :last => bittrex["result"]["Last"]}
+  def poll_bittrex
+    # Bittrex (https://bittrex.com/api/v1.1/public/getticker?market=btc-egc)
+    bittrex = JSON.parse(open("https://bittrex.com/api/v1.1/public/getticker?market=btc-egc").read)
+    return  {:name => "Bittrex", :last => bittrex["result"]["Last"]}
+  end
 
-        # c-cex (https://c-cex.com/t/egc-btc.json)
-        ccex = JSON.parse(open("https://c-cex.com/t/egc-btc.json").read)
-        exchange << {:name => "C-Cex", :last => ccex["ticker"]["lastprice"]}
+  def poll_ccex
+    # c-cex (https://c-cex.com/t/egc-btc.json)
+    ccex = JSON.parse(open("https://c-cex.com/t/egc-btc.json").read)
+    return {:name => "C-Cex", :last => ccex["ticker"]["lastprice"]}
+  end
 
-        # cryptopia (https://www.cryptopia.co.nz/api/GetMarket/2788/24)
-        tradePairId = 2788 # from https://www.cryptopia.co.nz/api/GetMarkets
-        hours=24
-        cryptopia = JSON.parse(open("https://www.cryptopia.co.nz/api/GetMarket/#{tradePairId}/#{hours}").read)
-        exchange << {:name => "Cryptopia", :last => cryptopia["Data"]["LastPrice"]}
+  def poll_cryptopia
+    # cryptopia (https://www.cryptopia.co.nz/api/GetMarket/2788/24)
+    tradePairId = 2788 # from https://www.cryptopia.co.nz/api/GetMarkets
+    hours=24
+    cryptopia = JSON.parse(open("https://www.cryptopia.co.nz/api/GetMarket/#{tradePairId}/#{hours}").read)
+    return {:name => "Cryptopia", :last => cryptopia["Data"]["LastPrice"]}
+  end
 
-        # yobit (https://yobit.net/api/2/egc_btc/ticker)
-        yobit = JSON.parse(open("https://yobit.net/api/2/egc_btc/ticker").read)
-        exchange << {:name => "Yobit", :last => yobit["ticker"]["last"]}
+  def poll_yobit
+    # yobit (https://yobit.net/api/2/egc_btc/ticker)
+    yobit = JSON.parse(open("https://yobit.net/api/2/egc_btc/ticker").read)
+    return {:name => "Yobit", :last => yobit["ticker"]["last"]}
+  end
 
-        @bot.handlers.dispatch(:exchange_update, nil, exchange)
+  def poll_all
+    exchange = Array.new
+    #TODO can we do these in threads or use http call backs
+    exchange << poll_bittrex
+    exchange << poll_ccex
+    exchange << poll_cryptopia
+    exchange << poll_yobit
+    return exchange
+  end
+
+  def exchanges_to_s(data)
+    out = Array.new
+    data.each do |r|
+      out.push "%s %0.8f" %[r[:name], r[:last]]
+    end
+
+    return out.join(" | ")
+  end
+
+  match "markets", method: :markets
+  def markets(m)
+    exchanges = poll_all
+    m.reply exchanges_to_s(exchanges)
+    @exchanges_last = exchanges
+  end
+
+  timer 1800, method: :daily_update
+  def daily_update
+    #19:05 <@StevenSaxton> c-cex 0.00006499 | bittrex 0.00006399 | cryptopia 0.00006490 | yobit 0.00006150 |
+
+    # Get Exchange data
+    exchanges = poll_all
+
+    # TODO, Compare exchanges and @exchanges_last and set flag if over ??%
+
+    # TODO update to print if flag above is set
+    if Time.now.utc.hour==00 and Time.now.min >= 15 and Time.now.min < 45
+      Settings.irc[:channels].each do |chan|
+        puts "Sending to #{chan}"
+        Channel(chan).send exchanges_to_s(exchanges)
       end
-      sleep 1800 # 30 minutes
+      @exchanges_last = exchanges
     end
   end
+
 end
 
