@@ -3,6 +3,7 @@ require 'bundler/setup'
 
 require_relative 'lib/exchanges'
 require_relative 'lib/evergreencoin'
+require_relative 'lib/power'
 require_relative 'lib/settings'
 
 # Load settings from EGCChipBot.yaml
@@ -23,7 +24,7 @@ bot = Cinch::Bot.new do
     c.nick = Settings.irc[:nick]
     c.user = Settings.irc[:user]
     c.realname = Settings.irc[:name]
-    c.plugins.plugins = [EGC, Exchanges]
+    c.plugins.plugins = [EGC, Exchanges, Power]
   end
 
 end
