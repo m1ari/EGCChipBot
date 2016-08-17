@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 # Based on https://en.bitcoin.it/wiki/API_reference_(JSON-RPC)#Ruby
+# more rpc notes https://en.bitcoin.it/wiki/Original_Bitcoin_client/API_calls_list
 
 require 'net/http'
 require 'uri'
