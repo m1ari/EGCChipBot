@@ -21,6 +21,8 @@ class Logger
     def log(messages, event = :debug, level = event)
       # "PRIVMSG #ukhasnet-test :Bittrex 0.00018050 | C-Cex 0.00019000 | Cryptopia 0.00030000 | Yobit 0.00017138"
       # TODO could we create a cinch message object to pass back
+      # https://github.com/cinchrb/cinch/issues/214#issuecomment-165652242
+      # ...  then construct Message objects via Message.new for the log messages.
 
       if event == :outgoing
         Array(messages).each do |msg|
