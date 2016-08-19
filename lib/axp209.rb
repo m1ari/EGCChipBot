@@ -10,13 +10,21 @@
 
 # Copyright (c) 2016 Mike Axford <m1ari@m1ari.co.uk>
 
+# TODO We seem to have issues as there's a driver loaded
+# We might be able to force i2c by using the _FORCE value
+#I2C_SLAVE 0x0703
+#I2C_SLAVE_FORCE 0x0706
+#@device::I2C_SLAVE = 0x0706  # Set the value to I2C_SLAVE_FORCE as the driver is loaded
+
 require 'i2c/i2c'
 
 module I2C
   module Drivers
     class AXP209
-
-      def initialize(device, address)
+      # Datasheet says 0x69(R)/0x68(W), but that includes the R/W bit at LSB
+      # Shifted these become 0x34 and seperate R/W bit
+      def initialize(bot, device, address = 0x34)
+        @bot = bot
         if device.kind_of?(String)
           @device = ::I2C.create(device)
         else
@@ -30,6 +38,19 @@ module I2C
       end
 
       def has_battery?
+      end
+
+      def battery_volts
+      end
+
+      def led_state?
+        @bot.info "Query LED state"
+        #i2cget -f -y 0 0x34 0x93
+      end
+      def led_state=(v)
+        @bot.info "Set LED state to #{v}"
+        #i2cset -f -y 0 0x34 0x93 $1
+        @device.write(@address,0x93,v)
       end
 
     end
