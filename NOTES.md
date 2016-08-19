@@ -1,6 +1,7 @@
 Useful links
 
 http://www.rubydoc.info/github/cinchrb/cinch/Cinch/User#oper-instance_method
+https://github.com/mose/cogbot/tree/master/plugins
 
 # Logging
 https://github.com/Quintus/cinch-plugins/blob/master/plugins/logplus.rb
