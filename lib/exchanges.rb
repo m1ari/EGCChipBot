@@ -38,12 +38,16 @@ class Exchanges
   end
 
   def poll_all
+    threads = Array.new
+    threads << Thread.new{poll_bittrex}
+    threads << Thread.new{poll_ccex}
+    threads << Thread.new{poll_cryptopia}
+    threads << Thread.new{poll_yobit}
+    
     exchange = Array.new
-    #TODO can we do these in threads or use http call backs
-    exchange << poll_bittrex
-    exchange << poll_ccex
-    exchange << poll_cryptopia
-    exchange << poll_yobit
+    threads.each do |t|
+      exchange << t.value
+    end
     return exchange
   end
 
