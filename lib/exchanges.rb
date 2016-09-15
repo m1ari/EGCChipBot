@@ -2,6 +2,7 @@
 require 'cinch'
 require 'json'
 require 'open-uri'
+require 'slack-notifier'
 
 class Exchanges
   include Cinch::Plugin
@@ -9,6 +10,7 @@ class Exchanges
   def initialize(*args)
     super
     @exchanges_last = poll_all
+    @slack = Slack::Notifier.new Settings.slack[:api_url]
   end
 
   def poll_bittrex
@@ -64,6 +66,7 @@ class Exchanges
   def markets(m)
     exchanges = poll_all
     m.reply exchanges_to_s(exchanges)
+    @slack.ping exchanges_to_s(exchanges)
     @exchanges_last = exchanges
   end
 
@@ -77,11 +80,15 @@ class Exchanges
     # TODO, Compare exchanges and @exchanges_last and set flag if over ??%
 
     # TODO update to print if flag above is set
-    if Time.now.utc.hour==00 and Time.now.min >= 15 and Time.now.min < 45
+    if (Time.now.utc.hour==00 or Time.now.utc.hour==12)  and Time.now.min >= 15 and Time.now.min < 45
       Settings.irc[:channels].each do |chan|
         puts "Sending to #{chan}"
         Channel(chan).send exchanges_to_s(exchanges)
       end
+
+      # Post to Slack
+      @slack.ping exchanges_to_s(exchanges)
+
       @exchanges_last = exchanges
     end
   end
