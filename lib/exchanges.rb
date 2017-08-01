@@ -17,12 +17,16 @@ class Exchanges
     # Bittrex (https://bittrex.com/api/v1.1/public/getticker?market=btc-egc)
     bittrex = JSON.parse(open("https://bittrex.com/api/v1.1/public/getticker?market=btc-egc").read)
     return  {:name => "Bittrex", :last => bittrex["result"]["Last"]}
+  rescue OpenURI::HTTPError
+    return  {:name => "Bittrex", :last => "Error"}
   end
 
   def poll_ccex
     # c-cex (https://c-cex.com/t/egc-btc.json)
     ccex = JSON.parse(open("https://c-cex.com/t/egc-btc.json").read)
     return {:name => "C-Cex", :last => ccex["ticker"]["lastprice"]}
+  rescue OpenURI::HTTPError
+    return  {:name => "C-Cex", :last => "Error"}
   end
 
   def poll_cryptopia
@@ -31,12 +35,16 @@ class Exchanges
     hours=24
     cryptopia = JSON.parse(open("https://www.cryptopia.co.nz/api/GetMarket/#{tradePairId}/#{hours}").read)
     return {:name => "Cryptopia", :last => cryptopia["Data"]["LastPrice"]}
+  rescue OpenURI::HTTPError
+    return  {:name => "Cryptopia", :last => "Error"}
   end
 
   def poll_yobit
     # yobit (https://yobit.net/api/2/egc_btc/ticker)
     yobit = JSON.parse(open("https://yobit.net/api/2/egc_btc/ticker").read)
     return {:name => "Yobit", :last => yobit["ticker"]["last"]}
+  rescue OpenURI::HTTPError
+    return  {:name => "Yobit", :last => "Error"}
   end
 
   def poll_all
@@ -56,7 +64,11 @@ class Exchanges
   def exchanges_to_s(data)
     out = Array.new
     data.each do |r|
-      out.push "%s %0.8f" %[r[:name], r[:last]]
+      if r[:last].is_a? Float
+        out.push "%s %0.8f" %[r[:name], r[:last]]
+      else
+        out.push "%s %s" %[r[:name], r[:last]]
+      end
     end
 
     return out.join(" | ")
